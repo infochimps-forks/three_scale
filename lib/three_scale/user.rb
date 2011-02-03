@@ -1,27 +1,3 @@
-#########USAGE###########
-
-# new_user = ThreeScale::User.new("foobar", :tier => "Silverback")
-
-#------An valid apikey will be created for the username provided. Only the username is
-#------required, the tier will default to Baboon if none is specified.
-
-# new_user.signup!
-
-#------user is signed up as a Silverback in 3scale
-
-# new_user.tier = "baboon"
-# new_user.update!
-
-#------user is now a Baboon in 3scale
-
-# new_user.regenerate_apikey!
-
-#------A new apikey is generated and pushed up to 3scale
-
-# new_user.cancel!
-
-#------user is destroyed in 3scale
-
 module ThreeScale
   class User
     include ThreeScale::Request

@@ -14,5 +14,5 @@ module ThreeScale
   autoload :User,     'three_scale/user'
   autoload :Request,  'three_scale/request'
   autoload :Metrics,  'three_scale/metrics'
-  autoload :ApiToken, 'three_scale/api_token.rb'
+  autoload :ApiToken, 'three_scale/api_token'
 end
