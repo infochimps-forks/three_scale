@@ -1,0 +1,42 @@
+
+h1. 3Scale User
+
+This is a Ruby wrapper for the 3scale "User Management API"http://www.3scale.net/support/api-user-management/
+
+h3. Configure
+
+The 3scale V1.0 API requires a provider_key for authorization, it must be passed in before using the wrapper.
+
+<pre><code>
+ThreeScale.configure do |config|
+  config.provider_key = "falkfj2lkjlkasjflkj"
+end
+</code></pre>
+
+<pre><code>
+new_user = ThreeScale::User.new("foobar", :tier => "Silverback")
+</code></pre>
+The only required parameter is the @username@.  Optionally pass @tier@, @first_name@ and @last_name@ attributes.
+
+<pre><code>
+ response = new_user.signup!
+ #The user account is pushed up to 3scale for creation. A @ThreeScale::Request::Response@ object is returned.
+ if response.success?
+  #
+ else
+   #An array of errors is returned, each error has a message and code
+   response.errors.each do |error|
+   puts error.message
+   end
+ end
+</code></pre>
+ new_user.tier = "baboon"
+ new_user.first_name = "billy"
+ new_user.update! 
+</code></pre>
+This will update the user's account in 3scale to reflect the local object.
+
+Additional Methods include:
+
+@cancel!@ - cancel the account
+@regenerate_apikey!@ - regenerate the user's apikey
