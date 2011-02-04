@@ -18,9 +18,9 @@ new_user = ThreeScale::User.new("foobar", :tier => "Silverback")
 </code></pre>
 The only required parameter is the @username@.  Optionally pass @tier@, @first_name@ and @last_name@ attributes.
 
+ #The @signup!@ method pushes the user object up to 3scale for creation. A @ThreeScale::Request::Response@ object is returned.
 <pre><code>
  response = new_user.signup!
- #The user account is pushed up to 3scale for creation. A @ThreeScale::Request::Response@ object is returned.
  if response.success?
    #signed up user successfully!
  else
