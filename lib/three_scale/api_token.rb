@@ -1,3 +1,6 @@
+require 'digest'
+require 'base64'
+
 #!/usr/bin/env ruby
 module ThreeScale
   class ApiToken

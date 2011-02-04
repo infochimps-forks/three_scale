@@ -65,18 +65,14 @@ module ThreeScale
     #
 
     def signup!
-      if has_account?
-        update!
-      else
-        path = "/plans/#{tier_id}/signup.xml"
-        post(path, {
-            :user_key => apikey,
-            "user[username]" => username,
-            "user[email]" => email,
-            "user[first_name]" => first_name,
-            "user[last_name]" => last_name
-          })
-      end
+      path = "/plans/#{tier_id}/signup.xml"
+      post(path, {
+          :user_key => apikey,
+          "user[username]" => username,
+          "user[email]" => email,
+          "user[first_name]" => first_name,
+          "user[last_name]" => last_name
+        })
     end
 
     #DELETE /users/[username].xml
