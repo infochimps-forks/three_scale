@@ -20,6 +20,18 @@ module ThreeScale
       end
     end
 
+    def self.find_or_create(username, options = { })
+      user = new(username,options)
+      if user.has_account?
+        user.tier = user.account["contract"]["plan"]["name"]
+        user.apikey = user.account["contract"]['user_key']
+        #currently no way to pull in existing user metadata like email,first_name,last_name...
+        user
+      else
+        user.signup!
+      end
+    end
+
     def initialize username = nil, options = { }
       @username     = username or raise "Must supply a username!"
       @apikey       = options[:apikey] || generate_apikey
@@ -32,17 +44,6 @@ module ThreeScale
       @host         = options[:host] || ThreeScale.host
     end
 
-    def tier_id
-      plan_id = 0
-      plans.each do |plan|
-        if plan.first == @tier.downcase.gsub(" ","_").to_sym
-          plan_id = plan.last['id']
-          @tier = plan.last['name']
-        end
-      end
-      raise "Invalid tier #{@tier}, try one of [#{plans.keys.join(",")}]" if plan_id == 0
-      plan_id
-    end
 
     #GET /plans.xml
     #Returns a array of available plans (tiers). Each plan is a hash with two
@@ -90,17 +91,17 @@ module ThreeScale
     #
     # apikey (optional) - key to use instead of a new random apikey
     #
-    # @returns@
-    # The new apikey if successful, otherwise the previous key
+    # Rolls back to the old key if something goes wrong during the update
     def regenerate_apikey!(apikey=nil)
       old_key = @apikey
-      begin
         @apikey = apikey || generate_apikey
-        put("/users/#{username}.xml",:user_key => @apikey)
-      rescue => error
+      resp = put("/users/#{username}.xml",:user_key => @apikey)
+      if resp.success?
+        @apikey
+      else
         @apikey = old_key
+        resp
       end
-      @apikey
     end
 
     #POST to /buyer/plans/plan_id/change.xml
@@ -143,6 +144,18 @@ module ThreeScale
     end
 
     private
+
+    def tier_id
+      plan_id = 0
+      plans.each do |plan|
+        if plan.first == @tier.downcase.gsub(" ","_").to_sym
+          plan_id = plan.last['id']
+          @tier = plan.last['name']
+        end
+      end
+      raise "Invalid tier #{@tier}, try one of [#{plans.keys.join(",")}]" if plan_id == 0
+      plan_id
+    end
 
     def generate_apikey
       ApiToken.new(username).apikey
