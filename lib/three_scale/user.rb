@@ -92,14 +92,10 @@ module ThreeScale
     # Rolls back to the old key if something goes wrong during the update
     def regenerate_apikey!(apikey=nil)
       old_key = @apikey
-        @apikey = apikey || generate_apikey
+      @apikey = apikey || generate_apikey
       resp = put("/users/#{username}.xml",:user_key => @apikey)
-      if resp.success?
-        @apikey
-      else
-        @apikey = old_key
-        resp
-      end
+      @apikey = old_key unless resp.success?
+      resp
     end
 
     #POST to /buyer/plans/plan_id/change.xml
