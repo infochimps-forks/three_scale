@@ -20,7 +20,7 @@ module ThreeScale
       end
     end
 
-    def self.find_or_create(username, options = { })
+    def self.find_or_build(username, options = { })
       user = new(username,options)
       if user.has_account?
         user.plan = user.account["contract"]["plan"]["name"]
@@ -28,7 +28,7 @@ module ThreeScale
         #currently no way to pull in existing user metadata like email,first_name,last_name...
         user
       else
-        user.signup!
+        user
       end
     end
 
@@ -48,7 +48,7 @@ module ThreeScale
     #keys: {'name','id'}
 
     def plans
-      get("/plans.xml").body['plans'].inject({}) do |plan_names,plan| plan_names.merge!(plan["name"].downcase.gsub(" ","_").to_sym => plan); end
+      get("/plans.xml").body['plans'].inject({}) do |plan_names,plan| plan_names.merge!(plan["name"].downcase.gsub(/[\s-]/,"_").to_sym => plan); end
     end
 
     #POST /plans/plan_id/signup.xml
@@ -104,7 +104,7 @@ module ThreeScale
     def update!
       @authorize = nil
        update_plan! &&
-        put("/users/#{username}.xml", {
+        resp = put("/users/#{username}.xml", {
           :user_key => apikey,
           "user[email]" => email,
           "user[first_name]" => first_name,
@@ -142,7 +142,7 @@ module ThreeScale
     def plan_id
       plan_id = 0
       plans.each do |plan|
-        if plan.first == @plan.downcase.gsub(" ","_").to_sym
+        if plan.first == @plan.downcase.gsub(/[\s-]/,"_").to_sym
           plan_id = plan.last['id']
           @plan = plan.last['name']
         end
