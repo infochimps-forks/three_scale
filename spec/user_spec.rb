@@ -1,20 +1,32 @@
-require File.dirname(__FILE__) + '/spec_helper'
 require File.dirname(__FILE__) + '/../lib/three_scale.rb'
-#include ModelSpecHelper
 
+ThreeScale.configure do |c|
+  c.provider_key = ENV['PROVIDER_KEY']
+end
+
+#Integration Specs with the 3scale API
 describe ThreeScale::User do
 
   it "should find an existing user" do
-    @user = ThreeScale::User.new("query_api_spec_test", :apikey => "query_api_spec_test69", :tier => "Baboon")
+    @user = ThreeScale::User.new("query_api_spec_test", :apikey => "query_api_spec_test69", :plan => "Baboon")
     @user.signup!
     ThreeScale::User.find("query_api_spec_test").should_not be_false
+    @user.cancel!
+  end
+
+  it "should find_or_create an existing user" do
+    @user = ThreeScale::User.new("query_api_spec_test", :apikey => "query_api_spec_test69", :plan => "Baboon")
+    @user.signup!
+    @user2 = ThreeScale::User.find_or_create("query_api_spec_test")
+    @user.apikey.should == @user2.apikey
+    @user.plan.should == @user2.plan
     @user.cancel!
   end
 
   describe "when creating a new user" do
 
     before(:each) do
-      @user = ThreeScale::User.new("query_api_spec_test", :apikey => "query_api_spec_test69", :tier => "Baboon")
+      @user = ThreeScale::User.new("query_api_spec_test", :apikey => "query_api_spec_test69", :plan => "Baboon")
     end
 
     it "should signup a user" do
@@ -22,11 +34,11 @@ describe ThreeScale::User do
     end
 
 
-    it "should use an existing user account if duplicate is found" do
+    it "should not allow signup if a duplicate account already exists" do
       @user.signup!
-      @user2 = ThreeScale::User.new("query_api_spec_test", :apikey => "query_api_spec_test269", :tier => "Silverback")
+      @user2 = ThreeScale::User.new("query_api_spec_test", :apikey => "query_api_spec_test269", :plan => "Silverback")
       resp = @user2.signup!
-      resp.success?.should be_true
+      resp.success?.should_not be_true
     end
 
     after(:each) do
@@ -39,7 +51,7 @@ describe ThreeScale::User do
   describe "when managing a user account" do
 
     before(:each) do
-      @user = ThreeScale::User.new("query_api_spec_test", :apikey => "query_api_spec_test69", :tier => "Baboon")
+      @user = ThreeScale::User.new("query_api_spec_test", :apikey => "query_api_spec_test69", :plan => "Baboon")
       @user.signup!
     end
 
@@ -58,11 +70,11 @@ describe ThreeScale::User do
       @user.apikey.should == "foobar69"
     end
 
-    it "should switch tiers" do
-      tier = @user.tier
-      @user.tier = "Brass Monkey"
+    it "should switch plans" do
+      plan = @user.plan
+      @user.plan = "Brass Monkey"
       @user.update!.success?.should be_true
-      tier.should_not == @user.tier
+      plan.should_not == @user.plan
     end
 
     it "should update user details" do

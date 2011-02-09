@@ -1,10 +1,8 @@
-require 'nokogiri'
-
 module ThreeScale
   module Request
 
     def build_params parameters
-      parameters.reject! {|k,v| v.nil? || v.blank?}
+      parameters.reject! {|k,v| v.nil? || v.empty?}
       query = parameters.inject([]) do |query, key_value|
         key_value[1] = key_value[1].strip
         query << key_value.join("=")

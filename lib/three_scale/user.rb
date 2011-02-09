@@ -3,13 +3,13 @@ module ThreeScale
     include ThreeScale::Request
     include ThreeScale::Metrics
 
-    attr_accessor :apikey,:email,:first_name,:last_name, :tier, :username
-    attr_reader :username, :tier
+    attr_accessor :apikey,:email,:first_name,:last_name, :plan, :username
+    attr_reader :username, :plan
 
     def self.find(username)
       user = new(username)
       if user.has_account?
-        user.tier = user.account["contract"]["plan"]["name"]
+        user.plan = user.account["contract"]["plan"]["name"]
         user.apikey = user.account["contract"]['user_key']
         #currently no way to pull in existing user metadata like email,first_name,last_name...
         user
@@ -23,7 +23,7 @@ module ThreeScale
     def self.find_or_create(username, options = { })
       user = new(username,options)
       if user.has_account?
-        user.tier = user.account["contract"]["plan"]["name"]
+        user.plan = user.account["contract"]["plan"]["name"]
         user.apikey = user.account["contract"]['user_key']
         #currently no way to pull in existing user metadata like email,first_name,last_name...
         user
@@ -38,15 +38,13 @@ module ThreeScale
       @first_name   = options[:first_name]
       @last_name    = options[:last_name]
       @email        = options[:email]
-      @tier         = options[:tier] || "Baboon"
-
+      @plan         = options[:plan] || "Baboon"
       @provider_key = ThreeScale.provider_key or raise "Must supply a provider key to use the 3scale API!"
       @host         = options[:host] || ThreeScale.host
     end
 
-
     #GET /plans.xml
-    #Returns a array of available plans (tiers). Each plan is a hash with two
+    #Returns a array of available plans (plans). Each plan is a hash with two
     #keys: {'name','id'}
 
     def plans
@@ -66,7 +64,7 @@ module ThreeScale
     #
 
     def signup!
-      path = "/plans/#{tier_id}/signup.xml"
+      path = "/plans/#{plan_id}/signup.xml"
       post(path, {
           :user_key => apikey,
           "user[username]" => username,
@@ -109,7 +107,7 @@ module ThreeScale
 
     def update!
       @authorize = nil
-       update_tier! &&
+       update_plan! &&
         put("/users/#{username}.xml", {
           :user_key => apikey,
           "user[email]" => email,
@@ -118,8 +116,8 @@ module ThreeScale
         })
     end
 
-    def update_tier!
-      post("/buyer/plans/#{tier_id}/change.xml",:username => username)
+    def update_plan!
+      post("/buyer/plans/#{plan_id}/change.xml",:username => username)
     end
 
     #GET to /buyer/contract.xml?
@@ -145,15 +143,15 @@ module ThreeScale
 
     private
 
-    def tier_id
+    def plan_id
       plan_id = 0
       plans.each do |plan|
-        if plan.first == @tier.downcase.gsub(" ","_").to_sym
+        if plan.first == @plan.downcase.gsub(" ","_").to_sym
           plan_id = plan.last['id']
-          @tier = plan.last['name']
+          @plan = plan.last['name']
         end
       end
-      raise "Invalid tier #{@tier}, try one of [#{plans.keys.join(",")}]" if plan_id == 0
+      raise "Invalid plan #{@plan}, try one of [#{plans.keys.join(",")}]" if plan_id == 0
       plan_id
     end
 
