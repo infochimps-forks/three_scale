@@ -3,7 +3,7 @@ module ThreeScale
     include ThreeScale::Request
     include ThreeScale::Metrics
 
-    attr_accessor :apikey,:email,:first_name,:last_name, :plan, :username
+    attr_accessor :apikey,:first_name,:last_name, :plan, :username
     attr_reader :username, :plan
 
     def self.find(username)
@@ -11,7 +11,7 @@ module ThreeScale
       if user.has_account?
         user.plan = user.account["contract"]["plan"]["name"]
         user.apikey = user.account["contract"]['user_key']
-        #currently no way to pull in existing user metadata like email,first_name,last_name...
+        #currently no way to pull in existing user metadata like first_name,last_name...
         user
       else
         user = nil
@@ -25,7 +25,7 @@ module ThreeScale
       if user.has_account?
         user.plan = user.account["contract"]["plan"]["name"]
         user.apikey = user.account["contract"]['user_key']
-        #currently no way to pull in existing user metadata like email,first_name,last_name...
+        #currently no way to pull in existing user metadata like first_name,last_name...
         user
       else
         user
@@ -37,7 +37,6 @@ module ThreeScale
       @apikey       = options[:apikey] || generate_apikey
       @first_name   = options[:first_name]
       @last_name    = options[:last_name]
-      @email        = options[:email]
       @plan         = options[:plan] || "Baboon"
       @provider_key = ThreeScale.provider_key or raise "Must supply a provider key to use the 3scale API!"
       @host         = options[:host] || ThreeScale.host
@@ -68,7 +67,6 @@ module ThreeScale
       post(path, {
           :user_key => apikey,
           "user[username]" => username,
-          "user[email]" => email,
           "user[first_name]" => first_name,
           "user[last_name]" => last_name
         })
@@ -106,7 +104,6 @@ module ThreeScale
        update_plan! &&
         resp = put("/users/#{username}.xml", {
           :user_key => apikey,
-          "user[email]" => email,
           "user[first_name]" => first_name,
           "user[last_name]" => last_name
         })
