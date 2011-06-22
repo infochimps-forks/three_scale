@@ -41,6 +41,7 @@ module ThreeScale
         else
           path = [path,params].join("?")
           http_resp = h.send(method,path)
+          http_resp
         end
       else
         raise "Invalid HTTP method call: #{method}"
@@ -73,7 +74,7 @@ module ThreeScale
 
     class Response
       def initialize(body,options)
-        @body = Hash.from_xml(body) rescue ""
+        @body = Crack::XML.parse(body)
         @success = options[:success]
         @errors  = []
         @metrics = []

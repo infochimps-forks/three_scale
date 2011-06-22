@@ -1,11 +1,12 @@
 require 'rubygems'
 require 'net/http'
 require 'nokogiri'
-begin
-  require 'activesupport'
-rescue LoadError
-  require "active_support"
-end
+require 'crack'
+# begin
+#   require 'activesupport'
+# rescue LoadError
+#   require "active_support"
+# end
 
 module ThreeScale
   class << self
