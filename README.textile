@@ -16,7 +16,7 @@ end
 <pre><code>
 new_user = ThreeScale::User.new("foobar", :plan => "Silverback")
 </code></pre>
-The only required parameter is the @username@.  Optionally pass @plan@, @first_name@ and @last_name@ attributes.
+The only required parameter is the @username@.  Optionally pass @apikey@, @plan@, @first_name@ and @last_name@ attributes.
 
  #The @signup!@ method pushes the user object up to 3scale for creation. A @ThreeScale::Request::Response@ object is returned.
 <pre><code>
